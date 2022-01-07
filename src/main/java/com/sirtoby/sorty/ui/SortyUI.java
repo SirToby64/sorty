@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.shsviveon.sorty.ui;
+package com.sirtoby.sorty.ui;
 
-import com.shsviveon.sorty.Config;
-import com.shsviveon.sorty.Sorty;
+import com.sirtoby.sorty.Config;
+import com.sirtoby.sorty.Sorty;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -15,7 +15,9 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -30,13 +32,22 @@ import javax.swing.KeyStroke;
 public class SortyUI extends javax.swing.JFrame {
     
     private Sorty sorty = null;
+    private int currentRotation = 0;
+    
     private static final String NAV_RIGHT = "NAV_RIGHT";
+    private static final List<Integer> REGISTERED_KEY_EVENTS = new ArrayList<>();
+    
+    private enum RotationDirection { LEFT, RIGHT }
 
     /**
      * Creates new form SortyUI
      */
     public SortyUI() {
         initComponents();
+        REGISTERED_KEY_EVENTS.add(KeyEvent.VK_RIGHT);
+        REGISTERED_KEY_EVENTS.add(KeyEvent.VK_LEFT);
+        REGISTERED_KEY_EVENTS.add(Config.BUTTON_SORTY);
+        REGISTERED_KEY_EVENTS.add(Config.BUTTON_UNSORTY);
     }
 
     /**
@@ -67,7 +78,6 @@ public class SortyUI extends javax.swing.JFrame {
         setLocation(new java.awt.Point(0, 0));
         setLocationByPlatform(true);
         setMinimumSize(new Dimension(Config.WINDOW_MINIMUM_WIDTH, Config.WINDOW_MINIMUM_HEIGHT));
-        setPreferredSize(new Dimension(Config.WINDOW_CURRENT_WIDTH, Config.WINDOW_CURRENT_HEIGHT));
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 formComponentResized(evt);
@@ -191,11 +201,8 @@ public class SortyUI extends javax.swing.JFrame {
             return;
         }
         
-        if (evt.getKeyCode() != KeyEvent.VK_RIGHT &&
-                evt.getKeyCode() != KeyEvent.VK_LEFT &&
-                evt.getKeyCode() != Config.BUTTON_SORTY &&
-                evt.getKeyCode() != Config.BUTTON_UNSORTY) {
-            return; //nothing todo here
+        if (!REGISTERED_KEY_EVENTS.contains(evt.getKeyCode())) {
+            return;
         }
         
         if (evt.getKeyCode() == KeyEvent.VK_RIGHT || evt.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -245,15 +252,33 @@ public class SortyUI extends javax.swing.JFrame {
     }//GEN-LAST:event_preferencesMenuItemMouseReleased
 
     private void jButtonRotateLeftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRotateLeftActionPerformed
-        // todo: rotate left
-        System.out.println("roateLeft");
+        System.out.println("rotateLeft");
+        rotateImage(RotationDirection.LEFT);
     }//GEN-LAST:event_jButtonRotateLeftActionPerformed
 
     private void jButtonRotateRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRotateRightActionPerformed
-        // todo: rotate right
-        System.out.println("roateRight");
-        scaleImage(sorty.getCurrentImage(), 90);
+        System.out.println("rotateRight");
+        rotateImage(RotationDirection.RIGHT);
     }//GEN-LAST:event_jButtonRotateRightActionPerformed
+    
+    private void rotateImage(RotationDirection rotationDirection) {
+        
+        int rotation = 0;
+        
+        if (rotationDirection.equals(RotationDirection.LEFT)) {
+            rotation = currentRotation - 90;
+        }
+        else if (rotationDirection.equals(RotationDirection.RIGHT)) {
+            rotation = currentRotation + 90;
+        }
+        
+        if (rotation >= 360 || rotation < 0) {
+            rotation = 0;
+        }
+        
+        scaleImage(sorty.getCurrentImage(), rotation);
+        currentRotation = rotation;
+    }
     
     private void scaleImage(BufferedImage image) {
         scaleImage(image, 0);
@@ -262,15 +287,9 @@ public class SortyUI extends javax.swing.JFrame {
     private void scaleImage(BufferedImage image, int degree) {
         
         if (jLabelContentImage.getWidth() < image.getWidth(jLabelContentImage) || jLabelContentImage.getHeight() < image.getHeight(jLabelContentImage)) {
-            
-//            if (angle > 0) {
-//                AffineTransform af = new AffineTransform();
-//                af.rotate(1, image.getWidth(jLabelContentImage)/2, image.getHeight(jLabelContentImage)/2);
-//                
-//                AffineTransformOp atop = nePw AffineTransformOp(af, AffineTransformOp.TYPE_BILINEAR);
-//                image = atop.filter(image, null);
-//            }
-            
+            /*
+                Todo: the image rescaling here seems to be incorrect in case of 90 and 270 degree. Play around with height and width
+            */
             double percentage = -1.0;
             double widthPercentage = (double) jLabelContentImage.getWidth() / (double) image.getWidth(jLabelContentImage);
             double heightPercentage = (double) jLabelContentImage.getHeight() / (double) image.getHeight(jLabelContentImage);
@@ -285,11 +304,11 @@ public class SortyUI extends javax.swing.JFrame {
             final int height = (int) (image.getHeight(jLabelContentImage) * percentage);
             
             final BufferedImage resizedImage;
-            if (degree > 0) {
-                resizedImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
+            if (degree == 0 || degree == 180) {
+                resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             }
             else {
-                resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                resizedImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
             }
             
             final Graphics2D g2 = resizedImage.createGraphics();
@@ -303,19 +322,34 @@ public class SortyUI extends javax.swing.JFrame {
             g2.setRenderingHints(hintMap);
             if (degree > 0) {
                 double angle = Math.toRadians(degree);
-                double sin = Math.abs(Math.sin(angle));
-                double cos = Math.abs(Math.cos(angle));
-                
-                int newWidth = (int) Math.floor(width*cos + height*sin);
-                int newHeight = (int) Math.floor(height*cos + width*sin);
-                
+//                double sin = Math.abs(Math.sin(angle));
+//                double cos = Math.abs(Math.cos(angle));
+//                
+//                int newWidth = (int) Math.floor(width*cos + height*sin);
+//                int newHeight = (int) Math.floor(height*cos + width*sin);
+//                
 //                g2.translate((newWidth - width)/2, (newHeight - height)/2);
-                g2.rotate(angle, width/2, height/2);
+                if (degree == 180) {
+                    g2.rotate(angle);
+                }
+                else {
+                    g2.rotate(angle, width/2, height/2);
+                }
+            }
+            
+            if (degree == 0) {
                 g2.drawImage(image, 0, 0, width, height, null);
             }
-            else {
-                g2.drawImage(image, 0, 0, width, height, null);
+            else if (degree == 90) {
+                g2.drawImage(image, 0, -height, width, height, null);
             }
+            else if (degree == 180) {
+                g2.drawImage(image, -width, -height, width, height, null);
+            }
+            else if (degree == 270) {
+                g2.drawImage(image, 0, -height, width, height, null);
+            }
+
             g2.dispose();
             
             image = resizedImage;
