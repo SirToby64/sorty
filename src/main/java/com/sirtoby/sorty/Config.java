@@ -39,17 +39,17 @@ public class Config {
     private static final String SORTY_WINDOW_MINIMUM_WIDTH = "sorty.window.minimum.width";
     private static final String SORTY_WINDOW_MINIMUM_HEIGHT = "sorty.window.minimum.height";
     
-    private static final File configFile = new File(System.getProperty("user.home") + "\\.sortyconf");
+    private static final File CONFIG_FILE = new File(System.getProperty("user.home") + "\\.sorty\\sorty.conf");
     
     public static void initConfig() {
         
-        if (!configFile.exists()) {
+        if (!CONFIG_FILE.exists()) {
             return;
         }
         
         final Properties props = new Properties();
         try {
-            props.load(new FileInputStream(configFile));
+            props.load(new FileInputStream(CONFIG_FILE));
         } catch (IOException ex) {
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
             return;
@@ -82,7 +82,11 @@ public class Config {
         props.setProperty(SORTY_WINDOW_MINIMUM_HEIGHT, String.valueOf(WINDOW_MINIMUM_HEIGHT));
         
         try {
-            props.store(new FileOutputStream(configFile, false), "Property Datei zum persistiereen/modifzieren von Sorty Einstellungen");
+            if (!CONFIG_FILE.getParentFile().exists()) {
+                CONFIG_FILE.getParentFile().mkdir();
+            }
+            
+            props.store(new FileOutputStream(CONFIG_FILE, false), "Property Datei zum persistiereen/modifzieren von Sorty Einstellungen");
         } catch (IOException ex) {
             System.out.println("Exception occured: ");
             ex.printStackTrace();

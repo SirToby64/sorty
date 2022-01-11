@@ -285,14 +285,16 @@ public class SortyUI extends javax.swing.JFrame {
     }
     
     private void scaleImage(BufferedImage image, int degree) {
+        final int imageWidth = image.getWidth(jLabelContentImage);
+        final int imageHeight = image.getHeight(jLabelContentImage);
         
-        if (jLabelContentImage.getWidth() < image.getWidth(jLabelContentImage) || jLabelContentImage.getHeight() < image.getHeight(jLabelContentImage)) {
+        if (jLabelContentImage.getWidth() < imageWidth || jLabelContentImage.getHeight() < imageHeight) {
             /*
                 Todo: the image rescaling here seems to be incorrect in case of 90 and 270 degree. Play around with height and width
             */
             double percentage = -1.0;
-            double widthPercentage = (double) jLabelContentImage.getWidth() / (double) image.getWidth(jLabelContentImage);
-            double heightPercentage = (double) jLabelContentImage.getHeight() / (double) image.getHeight(jLabelContentImage);
+            double widthPercentage = (double) jLabelContentImage.getWidth() / (double) imageWidth;
+            double heightPercentage = (double) jLabelContentImage.getHeight() / (double) imageHeight;
             
             if (widthPercentage < 1.0 && widthPercentage < heightPercentage) {
                 percentage = widthPercentage;
@@ -300,8 +302,8 @@ public class SortyUI extends javax.swing.JFrame {
                 percentage = heightPercentage;
             }
             
-            final int width = (int) (image.getWidth(jLabelContentImage) * percentage);
-            final int height = (int) (image.getHeight(jLabelContentImage) * percentage);
+            final int width = (int) (imageWidth * percentage);
+            final int height = (int) (imageHeight * percentage);
             
             final BufferedImage resizedImage;
             if (degree == 0 || degree == 180) {
