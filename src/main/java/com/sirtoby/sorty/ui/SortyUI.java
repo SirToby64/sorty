@@ -7,6 +7,8 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 public class SortyUI extends JFrame {
@@ -211,6 +213,19 @@ public class SortyUI extends JFrame {
     }
 
     public static void main(String[] args) {
+        
+        // Set look and feel
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(SortyUIOld.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
