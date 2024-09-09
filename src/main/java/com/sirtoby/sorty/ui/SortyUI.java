@@ -27,8 +27,8 @@ public class SortyUI extends JFrame {
         add(imagePanel, BorderLayout.CENTER);
 
         // Create buttons for rotating the image
-        JButton rotateLeftButton = new JButton("Rotate Left");
-        JButton rotateRightButton = new JButton("Rotate Right");
+        JButton rotateLeftButton = new JButton("Links drehen");
+        JButton rotateRightButton = new JButton("Rechts drehen");
 
         // Add action listeners to rotate the image
         rotateLeftButton.addActionListener(new ActionListener() {

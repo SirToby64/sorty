@@ -48,25 +48,27 @@ public class Sorty {
     }
     
     public BufferedImage nextImage() {
-        if (iter.hasNext()) {
-            if (!lastDirRight) {
-                lastDirRight = true;
-                iter.next();
-            }
-            return getImage(iter.next());
+        if (!iter.hasNext()) {
+            return null;
         }
-        return null;
+        
+        if (!lastDirRight) {
+            lastDirRight = true;
+            iter.next();
+        }
+        return getImage(iter.next());
     }
     
     public BufferedImage previousImage() {
-        if (iter.hasPrevious()) {
-            if (lastDirRight) {
-                lastDirRight = false;
-                iter.previous();
-            }
-            return getImage(iter.previous());
+        if (!iter.hasPrevious()) {
+                return null;
         }
-        return null;
+        
+        if (lastDirRight) {
+            lastDirRight = false;
+            iter.previous();
+        }
+        return getImage(iter.previous());
     }
     
     public BufferedImage getCurrentImage() {
